@@ -1,0 +1,243 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'optparse'
+require 'pathname'
+
+class Version < Gem::Version
+  def ===(other)
+    segments = self.segments
+    return segments == other.segments.first(segments.length)
+  end
+end
+
+# Configuration
+###############################################################################
+
+RUBY_VERSIONS_VERSION     = '0'
+RUBY_VERSIONS_COMMAND     = 'ruby-versions'
+RUBY_VERSION_FILE         = '.ruby-version'
+
+RUBY_VERSIONS             = %w(1.8 1.9).map { |v| Version.new(v) }
+v1_8, v1_9                = RUBY_VERSIONS
+
+RUBY_CANDIDATES           = [
+  ['ruby',      v1_8],
+
+  ['ruby1.8',   v1_8],
+  ['ruby1.8.*', v1_8],
+  ['ruby18',    v1_8],
+
+  ['ruby1.9',   v1_9],
+  ['ruby1.9.*', v1_9],
+  ['ruby19',    v1_9]
+]
+
+SHIM_PATH                 = Pathname.new('/usr/local/lib/ruby-versions/bin')
+SHIM_NAMES                = %w(ruby irb rdoc ri testrb gem erb rake bundle rails cap)
+
+EXIT_CODE_OK              = 0x00
+EXIT_CODE_INVALID_COMMAND = 0x01
+EXIT_CODE_NO_SUCH_RUBY    = 0x02
+EXIT_CODE_INVALID_VERSION = 0x03
+EXIT_CODE_NO_PRIVILEGES   = 0x04
+EXIT_CODE_NO_SHIM_PATH    = 0x05
+
+# Helper methods
+###############################################################################
+
+def error_exit(exit_code, message)
+  if exit_code == EXIT_CODE_OK
+    $stderr.puts(message)
+  else
+    $stderr.puts("ERROR: #{message}")
+  end
+  exit exit_code
+end
+
+def get_ruby_version(default_version = nil, default_version_source = nil)
+  ruby_version = default_version
+  ruby_version_source = default_version_source
+
+  unless ruby_version
+    if env_ruby_version = ENV['RUBY_VERSION']
+      ruby_version        = env_ruby_version
+      ruby_version_source = 'RUBY_VERSION environment variable'
+    end
+  end
+
+  unless ruby_version
+    ruby_version_path = Pathname.pwd
+    loop do
+      ruby_version_file = ruby_version_path + RUBY_VERSION_FILE
+      if ruby_version_file.file?
+        # Read .ruby-version file.
+        ruby_version        = File.new(ruby_version_file).readline.chomp
+        ruby_version_source = "#{ruby_version_file} file"
+        break
+      end
+      # Ascend path towards root directory:
+      if ruby_version_path.root?
+        # No .ruby-version file found along current path.
+        break
+      end
+      ruby_version_path = ruby_version_path.parent
+    end
+  end
+
+  # Validate Ruby version:
+  begin
+    ruby_version = ruby_version && Version.new(ruby_version)
+  rescue
+    error_exit(EXIT_CODE_INVALID_VERSION, "#{ruby_version_source} specifies invalid version: #{ruby_version}")
+  end
+
+  return ruby_version, ruby_version_source
+end
+
+def find_ruby_interpreter(paths, ruby_version, enumerate_all = false)
+  if enumerate_all
+    puts("Available Ruby interpreters (* = preferred#{ruby_version && " for #{ruby_version}"}):")
+    found_preferred = false
+  end
+  ruby = catch :ruby do
+    paths.each do |path|
+      RUBY_CANDIDATES.each do |interpreter_name_pattern, version|
+        Dir.glob("#{path}/#{interpreter_name_pattern}") do |interpreter_name|
+          real_interpreter_name = Pathname.new(interpreter_name).realpath
+          version_match = (not ruby_version or ruby_version === version)
+          if enumerate_all
+            if not found_preferred and version_match
+              preferred_tag = '*'
+              found_preferred = true
+            else
+              preferred_tag = ' '
+            end
+            puts("#{preferred_tag} #{version}  #{interpreter_name}")
+          elsif version_match
+            throw :ruby, interpreter_name
+          end
+        end
+      end
+    end
+    nil
+  end
+  return ruby
+end
+
+# Initialization
+###############################################################################
+
+paths = ENV['PATH'].split(':')
+
+script_path = Pathname.new($0).realpath
+script_name = script_path.basename.to_s
+command = script_name.gsub(/([\d.]+)$/, '')
+
+# ruby-versions logic
+###############################################################################
+
+if command == RUBY_VERSIONS_COMMAND
+  option_parser = OptionParser.new
+  option_parser.banner = "Usage: #{RUBY_VERSIONS_COMMAND} [options] [command] [args]"
+  option_parser.separator('')
+  option_parser.on('--help', 'Show this help') { error_exit(0, option_parser.to_s) }
+  option_parser.separator('')
+  option_parser.separator('command defaults to "list" and may be one of the following:')
+  option_parser.separator('')
+  option_parser.separator('  help       Show this help.')
+  option_parser.separator("  version    Show version of #{RUBY_VERSIONS_COMMAND}.")
+  option_parser.separator('  init       Print code for initializing shell environment.')
+  option_parser.separator("  install    Install set of shims in #{SHIM_PATH}")
+  option_parser.separator("  uninstall  Remove set of shims from #{SHIM_PATH}")
+  option_parser.separator('  list       List available Ruby versions.')
+  option_parser.separator('')
+  option_parser.parse!
+
+  subcommand = ARGV.shift || 'list'
+
+  case subcommand
+  when 'help'
+    error_exit(EXIT_CODE_OK, option_parser.to_s)
+
+  when 'version'
+    error_exit(EXIT_CODE_OK, "#{RUBY_VERSIONS_COMMAND} v#{RUBY_VERSIONS_VERSION}")
+
+  when 'init'
+    puts("PATH=#{SHIM_PATH}:$PATH")
+
+  when 'which'
+    ruby_version, ruby_version_source = get_ruby_version
+    if ruby = find_ruby_interpreter(paths, ruby_version)
+      puts(ruby)
+    else
+      error_exit(EXIT_CODE_NO_SUCH_RUBY, "Could not find a Ruby #{ruby_version} interpreter.")
+    end
+
+  when 'install'
+    puts("Creating shimlinks in #{SHIM_PATH}:")
+    version_postfixes = [''] + RUBY_VERSIONS.map(&:to_s)
+    begin
+      unless SHIM_PATH.directory?
+        error_exit(EXIT_CODE_NO_SHIM_PATH, "Could not write to #{SHIM_PATH} directory.")
+      end
+      SHIM_NAMES.each do |shim_name|
+        version_postfixes.each do |version_postfix|
+          symlink_name = SHIM_PATH + (shim_name + version_postfix)
+          File.unlink(symlink_name) rescue nil
+          File.symlink(script_path, symlink_name)
+          puts(symlink_name)
+        end
+      end
+    rescue Errno::EACCES
+      error_exit(EXIT_CODE_NO_PRIVILEGES, "Insufficient privileges; try running as root.")
+    end
+
+  when 'uninstall'
+    puts("Removing shimlinks from #{SHIM_PATH}:")
+    version_postfixes = [''] + RUBY_VERSIONS.map(&:to_s)
+    begin
+      SHIM_NAMES.each do |shim_name|
+        version_postfixes.each do |version_postfix|
+          symlink_name = SHIM_PATH + (shim_name + version_postfix)
+          begin
+            File.unlink(symlink_name)
+            puts(symlink_name)
+          rescue Errno::ENOENT
+            # Ignore missing shimlink.
+          end
+        end
+      end
+    rescue Errno::EACCES
+      error_exit(EXIT_CODE_NO_PRIVILEGES, "Insufficient privileges; try running as root.")
+    end
+
+  when 'list'
+    ruby_version, ruby_version_source = get_ruby_version
+    ruby = find_ruby_interpreter(paths, ruby_version, true)
+
+  else
+    error_exit(EXIT_CODE_INVALID_COMMAND, "Unknown command: #{subcommand}")
+  end
+
+  exit EXIT_CODE_OK
+end
+
+# Shim logic
+###############################################################################
+
+ruby_version, ruby_version_source = get_ruby_version($1, 'Command name')
+ruby = find_ruby_interpreter(paths, ruby_version)
+if ruby
+  puts("Choosing #{ruby} for #{ruby_version || 'arbitrary'} interpreter")
+else
+  error_exit(EXIT_CODE_NO_SUCH_RUBY, "Could not find a Ruby #{ruby_version} interpreter.")
+end
+
+if command == 'ruby'
+  exec(ruby, *ARGV)
+else
+  exec(ruby, '-S', command, *ARGV)
+end
+
+# vim:sw=2 sts=2
