@@ -152,6 +152,7 @@ if command == RUBY_VERSIONS_COMMAND
   option_parser.separator('  help       Show this help.')
   option_parser.separator("  version    Show version of #{RUBY_VERSIONS_COMMAND}.")
   option_parser.separator('  init       Print code for initializing shell environment.')
+  option_parser.separator('  config     Print configuration.')
   option_parser.separator("  install    Install set of shims in #{SHIM_PATH}")
   option_parser.separator("  uninstall  Remove set of shims from #{SHIM_PATH}")
   option_parser.separator('  list       List available Ruby versions.')
@@ -176,6 +177,22 @@ if command == RUBY_VERSIONS_COMMAND
       puts(ruby)
     else
       error_exit(EXIT_CODE_NO_SUCH_RUBY, "Could not find a Ruby #{ruby_version} interpreter.")
+    end
+
+  when 'config'
+    config = {
+      :version          => RUBY_VERSIONS_VERSION,
+      :ruby_versions    => RUBY_VERSIONS.join(','),
+      :ruby_candidates  => RUBY_CANDIDATES.map(&:first).join(','),
+      :shim_path        => SHIM_PATH,
+      :shim_names       => SHIM_NAMES.join(',')
+    }
+    if config_key = ARGV.shift
+      puts(config[config_key.to_sym])
+    else
+      config.keys.map(&:to_s).sort.each do |config_key|
+        puts("#{config_key}=#{config[config_key.to_sym]}")
+      end
     end
 
   when 'install'
@@ -239,7 +256,6 @@ else
 end
 
 if command == 'ruby'
-  puts("DEBUG: running #{ruby}")
   exec(ruby, *ARGV)
 else
   script_realpath = script_path.realpath

@@ -1,4 +1,4 @@
 ruby-versions
 =============
 
-Ruby Version Shims Manager
+Ruby Version Switcher and Shims Manager
