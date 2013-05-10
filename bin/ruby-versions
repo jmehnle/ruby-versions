@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/opt/local/bin/ruby
 
 require 'rubygems'
 require 'optparse'
@@ -38,10 +38,11 @@ SHIM_NAMES                = %w(ruby irb rdoc ri testrb gem erb rake bundle rails
 
 EXIT_CODE_OK              = 0x00
 EXIT_CODE_INVALID_COMMAND = 0x01
-EXIT_CODE_NO_SUCH_RUBY    = 0x02
-EXIT_CODE_INVALID_VERSION = 0x03
-EXIT_CODE_NO_PRIVILEGES   = 0x04
-EXIT_CODE_NO_SHIM_PATH    = 0x05
+EXIT_CODE_INVALID_VERSION = 0x02
+EXIT_CODE_NO_SUCH_RUBY    = 0x03
+EXIT_CODE_NO_SUCH_COMMAND = 0x04
+EXIT_CODE_NO_PRIVILEGES   = 0x05
+EXIT_CODE_NO_SHIM_PATH    = 0x06
 
 # Helper methods
 ###############################################################################
@@ -128,11 +129,13 @@ end
 # Initialization
 ###############################################################################
 
-paths = ENV['PATH'].split(':')
+paths = ENV['PATH'].split(':').map { |path| Pathname.new(path) } - [SHIM_PATH]
 
-script_path = Pathname.new($0).realpath
+script_path = Pathname.new($0).expand_path
 script_name = script_path.basename.to_s
 command = script_name.gsub(/([\d.]+)$/, '')
+
+verbose = false
 
 # ruby-versions logic
 ###############################################################################
@@ -141,7 +144,8 @@ if command == RUBY_VERSIONS_COMMAND
   option_parser = OptionParser.new
   option_parser.banner = "Usage: #{RUBY_VERSIONS_COMMAND} [options] [command] [args]"
   option_parser.separator('')
-  option_parser.on('--help', 'Show this help') { error_exit(0, option_parser.to_s) }
+  option_parser.on(      '--help',    'Show this help')        { error_exit(0, option_parser.to_s) }
+  option_parser.on('-v', '--verbose', 'Enable verbose output') { verbose = true }
   option_parser.separator('')
   option_parser.separator('command defaults to "list" and may be one of the following:')
   option_parser.separator('')
@@ -229,15 +233,21 @@ end
 ruby_version, ruby_version_source = get_ruby_version($1, 'Command name')
 ruby = find_ruby_interpreter(paths, ruby_version)
 if ruby
-  puts("Choosing #{ruby} for #{ruby_version || 'arbitrary'} interpreter")
+  #puts("Using #{ruby} for #{ruby_version || 'arbitrary'} interpreter.")
 else
   error_exit(EXIT_CODE_NO_SUCH_RUBY, "Could not find a Ruby #{ruby_version} interpreter.")
 end
 
 if command == 'ruby'
+  puts("DEBUG: running #{ruby}")
   exec(ruby, *ARGV)
 else
-  exec(ruby, '-S', command, *ARGV)
+  script_realpath = script_path.realpath
+  paths.each do |path|
+    next unless (path + command).executable?
+    exec(ruby, path + command, *ARGV)
+  end
+  error_exit(EXIT_CODE_NO_SUCH_COMMAND, "Could not find #{command} executable in path.")
 end
 
 # vim:sw=2 sts=2
