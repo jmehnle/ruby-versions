@@ -180,14 +180,14 @@ if command == RUBY_VERSIONS_COMMAND
 
   when 'install'
     puts("Creating shimlinks in #{SHIM_PATH}:")
-    version_postfixes = [''] + RUBY_VERSIONS.map(&:to_s)
+    version_suffixes = [''] + RUBY_VERSIONS.map(&:to_s)
     begin
       unless SHIM_PATH.directory?
         error_exit(EXIT_CODE_NO_SHIM_PATH, "Could not write to #{SHIM_PATH} directory.")
       end
       SHIM_NAMES.each do |shim_name|
-        version_postfixes.each do |version_postfix|
-          symlink_name = SHIM_PATH + (shim_name + version_postfix)
+        version_suffixes.each do |version_suffix|
+          symlink_name = SHIM_PATH + (shim_name + version_suffix)
           File.unlink(symlink_name) rescue nil
           File.symlink(script_path, symlink_name)
           puts(symlink_name)
@@ -199,11 +199,11 @@ if command == RUBY_VERSIONS_COMMAND
 
   when 'uninstall'
     puts("Removing shimlinks from #{SHIM_PATH}:")
-    version_postfixes = [''] + RUBY_VERSIONS.map(&:to_s)
+    version_suffixes = [''] + RUBY_VERSIONS.map(&:to_s)
     begin
       SHIM_NAMES.each do |shim_name|
-        version_postfixes.each do |version_postfix|
-          symlink_name = SHIM_PATH + (shim_name + version_postfix)
+        version_suffixes.each do |version_suffix|
+          symlink_name = SHIM_PATH + (shim_name + version_suffix)
           begin
             File.unlink(symlink_name)
             puts(symlink_name)
