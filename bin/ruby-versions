@@ -14,23 +14,23 @@ end
 # Configuration
 ###############################################################################
 
-RUBY_VERSIONS_VERSION     = '0'
+RUBY_VERSIONS_VERSION     = '1'
 RUBY_VERSIONS_COMMAND     = 'ruby-versions'
 RUBY_VERSION_FILE         = '.ruby-version'
 
 RUBY_VERSIONS             = %w(1.8 1.9).map { |v| Version.new(v) }
-v1_8, v1_9                = RUBY_VERSIONS
+V1_8, V1_9                = RUBY_VERSIONS
 
 RUBY_CANDIDATES           = [
-  ['ruby',      v1_8],
+  ['ruby',      nil],
 
-  ['ruby1.8',   v1_8],
-  ['ruby1.8.*', v1_8],
-  ['ruby18',    v1_8],
+  ['ruby1.8',   V1_8],
+  ['ruby1.8.*', V1_8],
+  ['ruby18',    V1_8],
 
-  ['ruby1.9',   v1_9],
-  ['ruby1.9.*', v1_9],
-  ['ruby19',    v1_9]
+  ['ruby1.9',   V1_9],
+  ['ruby1.9.*', V1_9],
+  ['ruby19',    V1_9]
 ]
 
 SHIM_PATH                 = Pathname.new('/usr/local/lib/ruby-versions/bin')
@@ -106,6 +106,13 @@ def find_ruby_interpreter(paths, ruby_version, enumerate_all = false)
       RUBY_CANDIDATES.each do |interpreter_name_pattern, version|
         Dir.glob("#{path}/#{interpreter_name_pattern}") do |interpreter_name|
           real_interpreter_name = Pathname.new(interpreter_name).realpath
+          if not version and %x{#{real_interpreter_name} --version} =~ /^ruby ([\d.]+)/
+            version = case $1
+              when /^1\.8(?:$|\.)/ then V1_8
+              when /^1\.9(?:$|\.)/ then V1_9
+            end
+            puts("DEBUG: ruby version = #{version}")
+          end
           version_match = (not ruby_version or ruby_version === version)
           if enumerate_all
             if not found_preferred and version_match

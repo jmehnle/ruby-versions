@@ -1,0 +1,12 @@
+# Legend:
+# --- = A new release
+#   + = Added a feature (in a backwards compatible way)
+#   ! = Changed something significant, or removed a feature
+#   * = Fixed a bug, or made a minor improvement
+
+--- 1 (2013-05-13 22:55)
+
+  * Auto-detect version of Ruby interpreters with unversioned names (such as
+    "ruby") rather than assuming they are 1.8.
+
+--- 0 (2013-05-11 00:00)
