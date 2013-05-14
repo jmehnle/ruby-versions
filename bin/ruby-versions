@@ -267,7 +267,7 @@ else
   script_realpath = script_path.realpath
   paths.each do |path|
     next unless (path + command).executable?
-    exec(ruby, path + command, *ARGV)
+    exec(ruby, (path + command).to_s, *ARGV)
   end
   error_exit(EXIT_CODE_NO_SUCH_COMMAND, "Could not find #{command} executable in path.")
 end
