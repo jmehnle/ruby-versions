@@ -88,7 +88,7 @@ def get_ruby_version(default_version = nil, default_version_source = nil)
 
   # Validate Ruby version:
   begin
-    ruby_version = ruby_version && Version.new(ruby_version)
+    ruby_version = ruby_version && Version.new(ruby_version.dup)
   rescue
     error_exit(EXIT_CODE_INVALID_VERSION, "#{ruby_version_source} specifies invalid version: #{ruby_version}")
   end

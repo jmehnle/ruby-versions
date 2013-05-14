@@ -4,6 +4,10 @@
 #   ! = Changed something significant, or removed a feature
 #   * = Fixed a bug, or made a minor improvement
 
+--- 2 (2013-05-14 19:15)
+
+  * Fix issues when running ruby-versions itself under Ruby 1.9.
+
 --- 1 (2013-05-13 22:55)
 
   * Auto-detect version of Ruby interpreters with unversioned names (such as
