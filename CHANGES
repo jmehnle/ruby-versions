@@ -4,6 +4,18 @@
 #   ! = Changed something significant, or removed a feature
 #   * = Fixed a bug, or made a minor improvement
 
+--- 3 (2013-05-15 21:40)
+
+  + Add --is-ruby-versions command-line option for testing whether a shimmable
+    command (such as `ruby` or `bundle`) is in fact a ruby-versions shim.
+    ruby-versions returns a 0 exit code, whereas real commands will return a
+    non-0 exit code.  (You will want to redirect STDERR to /dev/null.)
+  * Improve platform portability by not relying on arbitrary shebang line in
+    ruby-versions.  Instead, during installation invoke via any locally
+    available `ruby`, and change shebang line of script being installed to a
+    real `ruby`.
+  * Minor clean-up of installation logic.
+
 --- 2 (2013-05-14 19:15)
 
   * Fix issues when running ruby-versions itself under Ruby 1.9.
