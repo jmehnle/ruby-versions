@@ -15,6 +15,7 @@ end
 ###############################################################################
 
 RUBY_VERSIONS_VERSION     = '3'
+RUBY_VERSIONS_VERSION     = '2'
 RUBY_VERSIONS_COMMAND     = 'ruby-versions'
 RUBY_VERSION_FILE         = '.ruby-version'
 
