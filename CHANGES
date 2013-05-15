@@ -4,6 +4,13 @@
 #   ! = Changed something significant, or removed a feature
 #   * = Fixed a bug, or made a minor improvement
 
+--- 4 (2013-05-16 23:50)
+
+  * Fix double definition of RUBY_VERSIONS_VERSION.  Duh.
+  * Make "install" make target depend on "all" target, so an explicit
+    `make all` isn't required.
+  * Update MANIFEST (add CHANGES, remove debian/).
+
 --- 3 (2013-05-15 21:40)
 
   + Add --is-ruby-versions command-line option for testing whether a shimmable

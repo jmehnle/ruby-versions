@@ -16,7 +16,7 @@ build:
 build/bin/ruby-versions:
 	awk '{ if (NR == 1 && /^#!/) print "#!$(REAL_RUBY)"; else print }' bin/ruby-versions >build/bin/ruby-versions
 
-install:
+install: all
 	mkdir -p $(INSTALLPATH_BIN)
 	install -m 755 build/bin/ruby-versions $(INSTALLPATH_BIN)/ruby-versions
 	mkdir -p $(INSTALLPATH_LIB)
