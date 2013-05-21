@@ -1,0 +1,12 @@
+Format-Specification: http://anonscm.debian.org/viewvc/dep/web/deps/dep5.mdwn?view=markup&pathrev=135
+Maintainer: Julian Mehnle <julian@mehnle.net>
+Source: https://github.com/jmehnle/ruby-versions
+Name: ruby-versions
+
+Files: *
+Copyright: 2013, Julian Mehnle <julian@mehnle.net>
+License: Apache-2.0
+
+Files: debian/*
+Copyright: 2013, Zack Train <crayz.train@gmail.com>
+License: Apache-2.0

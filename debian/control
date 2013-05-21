@@ -1,0 +1,13 @@
+Source: ruby-versions
+Section: misc
+Priority: optional
+Standards-Version: 3.9.3
+Homepage: https://github.com/jmehnle/ruby-versions
+Maintainer: Zack Train <crayz.train@gmail.com>
+Build-Depends: ruby
+
+Package: ruby-versions
+Depends: ruby
+Architecture: all
+Description: Ruby Version Switcher and Shims Manager
+ Ruby Version Switcher and Shims Manager
