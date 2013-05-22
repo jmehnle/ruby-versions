@@ -1,4 +1,10 @@
-ruby-versions (5-1) UNRELEASED; urgency=low
+ruby-versions (6) unstable; urgency=low
+
+  * Minor improvements.
+
+ -- Julian Mehnle <julian@mehnle.net>  Wed May 22 20:00:00 UTC 2013
+
+ruby-versions (5) unstable; urgency=low
 
   * Initial release.
 

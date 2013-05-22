@@ -4,8 +4,10 @@
 #   ! = Changed something significant, or removed a feature
 #   * = Fixed a bug, or made a minor improvement
 
---- 6 (UNRELEASED)
+--- 6 (2013-05-22 20:00)
 
+  + Add Debian package meta files (debian/).  Thanks to Zack Train and
+    Agari Data, Inc for the contribution!
   * Minor improvements.
 
 --- 5 (2013-05-20 23:35)
