@@ -1,3 +1,5 @@
+# This Makefile assumes GNU make.
+
 MANIFEST_FILE       = MANIFEST
 VERSION             = $(shell ruby bin/ruby-versions config version)
 REAL_RUBY           = $(shell ruby bin/ruby-versions which)

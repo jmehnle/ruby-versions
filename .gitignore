@@ -1,0 +1,5 @@
+build/
+debian/files
+debian/ruby-versions.debhelper.log
+debian/ruby-versions.substvars
+debian/ruby-versions/
