@@ -16,7 +16,7 @@ build:
 	mkdir -p build/bin
 
 build/bin/ruby-versions:
-	awk '{ if (NR == 1 && /^#!/) print "#!$(REAL_RUBY)"; else print }' bin/ruby-versions >build/bin/ruby-versions
+	ruby -npe '$$. == 1 && sub(/^#![^ ]+(.*)$$/, "#!$(REAL_RUBY)\\1")' bin/ruby-versions >build/bin/ruby-versions
 
 install: all
 	mkdir -p $(INSTALLPATH_BIN)

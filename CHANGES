@@ -4,6 +4,16 @@
 #   ! = Changed something significant, or removed a feature
 #   * = Fixed a bug, or made a minor improvement
 
+--- 7 (2013-05-25 01:10)
+
+  + Run ruby-versions in $SAFE = 1 mode by adding -T1 to its shebang line in
+    order to make Ruby ignore the RUBYOPT environment variable and any -r or
+    other arguments in it that might interfere with ruby-versions.
+    Specifically this allows a ruby-versions "irb" shim to be invoked from the
+    Ruby on Rails "console" command without accidentally invoking Bundler by
+    way of RUBYOPT="-rbundler/setup".
+  * Print a friendly error message on invalid command-line options.
+
 --- 6 (2013-05-22 20:00)
 
   + Add Debian package meta files (debian/).  Thanks to Zack Train and
