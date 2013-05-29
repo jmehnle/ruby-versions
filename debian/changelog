@@ -1,3 +1,10 @@
+ruby-versions (8) unstable; urgency=low
+
+  * Fix `ruby-versions install`, which was broken due to a mistake in taint /
+    $SAFE = 1 mode handling.
+
+ -- Julian Mehnle <julian@mehnle.net>  Wed, 29 May 2013 02:35:00 +0000
+
 ruby-versions (7) unstable; urgency=low
 
   + Run ruby-versions in $SAFE = 1 mode by adding -T1 to its shebang line in
