@@ -4,6 +4,11 @@
 #   ! = Changed something significant, or removed a feature
 #   * = Fixed a bug, or made a minor improvement
 
+--- 8 (2013-05-29 02:35)
+
+  * Fix `ruby-versions install`, which was broken due to a mistake in taint /
+    $SAFE = 1 mode handling.
+
 --- 7 (2013-05-25 01:10)
 
   + Run ruby-versions in $SAFE = 1 mode by adding -T1 to its shebang line in

@@ -22,7 +22,7 @@ end
 # Configuration
 ###############################################################################
 
-RUBY_VERSIONS_VERSION     = '7'
+RUBY_VERSIONS_VERSION     = '8'
 RUBY_VERSIONS_COMMAND     = 'ruby-versions'
 RUBY_VERSION_FILE         = '.ruby-version'
 
@@ -197,9 +197,9 @@ end
 
 paths = ENV['PATH'].split(':').map { |path| Pathname.new(path.untaint) } - [SHIM_PATH]
 
-script_path = Pathname.new($0).expand_path
+script_path = Pathname.new($0).expand_path.untaint
 script_name = script_path.basename.to_s
-command = script_name.gsub(/([\d.]+)$/, '').untaint
+command = script_name.gsub(/([\d.]+)$/, '')
 
 verbose = false
 
