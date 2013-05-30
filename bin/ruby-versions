@@ -124,9 +124,9 @@ def get_ruby_version(default_version = nil, default_version_source = nil)
   end
 
   unless ruby_version
-    ruby_version_path = Pathname.pwd.untaint
+    ruby_version_path = Pathname.pwd
     loop do
-      ruby_version_file = ruby_version_path + RUBY_VERSION_FILE
+      ruby_version_file = (ruby_version_path + RUBY_VERSION_FILE).untaint
       if ruby_version_file.file?
         # Read .ruby-version file.
         ruby_version        = File.new(ruby_version_file).readline.chomp
@@ -161,7 +161,7 @@ def find_ruby_interpreter(paths, ruby_version, enumerate_all = false)
     paths.each do |path|
       RUBY_CANDIDATES.each do |interpreter_name_pattern, version|
         Dir.glob("#{path}/#{interpreter_name_pattern}") do |interpreter_name|
-          real_interpreter_name = Pathname.new(interpreter_name.untaint).realpath
+          real_interpreter_name = Pathname.new(interpreter_name.untaint).realpath.untaint
           if not version and %x{#{real_interpreter_name} --version} =~ /^ruby ([\d.]+)/
             version = case $1
               when /^1\.8(?:$|\.)/ then V1_8
@@ -281,7 +281,7 @@ if command == RUBY_VERSIONS_COMMAND
           puts(symlink_name)
         end
       end
-    rescue Errno::EACCES
+    rescue Errno::EACCES, Errno::EEXIST
       error_exit(EXIT_CODE_NO_PRIVILEGES, "Insufficient privileges; try running as root.")
     end
 

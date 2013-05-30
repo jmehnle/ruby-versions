@@ -4,6 +4,10 @@
 #   ! = Changed something significant, or removed a feature
 #   * = Fixed a bug, or made a minor improvement
 
+--- 9 (2013-05-30 18:40)
+
+  * Fix taint errors under Ruby 1.9.
+
 --- 8 (2013-05-29 02:35)
 
   * Fix `ruby-versions install`, which was broken due to a mistake in taint /
