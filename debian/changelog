@@ -1,3 +1,9 @@
+ruby-versions (10) unstable; urgency=low
+
+  + Add support for Ruby 2.0.
+
+ -- Julian Mehnle <julian@mehnle.net>  Tue, 25 Jun 2013 18:50:00 +0000
+
 ruby-versions (9) unstable; urgency=low
 
   * Fix taint errors under Ruby 1.9.
