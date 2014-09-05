@@ -22,12 +22,12 @@ end
 # Configuration
 ###############################################################################
 
-RUBY_VERSIONS_VERSION     = '10'
+RUBY_VERSIONS_VERSION     = '11'
 RUBY_VERSIONS_COMMAND     = 'ruby-versions'
 RUBY_VERSION_FILE         = '.ruby-version'
 
-RUBY_VERSIONS             = %w(1.8 1.9 2.0).map { |v| Version.new(v) }
-V1_8, V1_9, V2_0          = RUBY_VERSIONS
+RUBY_VERSIONS             = %w(1.8 1.9 2.0 2.1).map { |v| Version.new(v) }
+V1_8, V1_9, V2_0, V2_1    = RUBY_VERSIONS
 
 RUBY_CANDIDATES           = [
   ['ruby',      nil],
@@ -42,7 +42,11 @@ RUBY_CANDIDATES           = [
 
   ['ruby2.0',   V2_0],
   ['ruby2.0.*', V2_0],
-  ['ruby20',    V2_0]
+  ['ruby20',    V2_0],
+
+  ['ruby2.1',   V2_1],
+  ['ruby2.1.*', V2_1],
+  ['ruby21',    V2_1]
 ]
 
 SHIM_PATH                 = Pathname.new('/var/lib/ruby-versions/bin')
@@ -171,6 +175,7 @@ def find_ruby_interpreter(paths, ruby_version, enumerate_all = false)
               when /^1\.8(?:$|\.)/ then V1_8
               when /^1\.9(?:$|\.)/ then V1_9
               when /^2\.0(?:$|\.)/ then V2_0
+              when /^2\.1(?:$|\.)/ then V2_1
             end
           end
           version_match = (not ruby_version or ruby_version === version)
